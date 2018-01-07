@@ -13,22 +13,35 @@ public class BruteCollinearPoints {
             throw new IllegalArgumentException();
         }
         
-        Arrays.sort(points);
-        
+        // copy array
         int n = points.length;
+        Point[] copy = new Point[n];
+        for (int i = 0; i < n; i++) {
+            copy[i] = points[i];
+        }
+        
+        // sort array and check for duplicates and nulls
+        Arrays.sort(copy);
+        for (int i = 0; i < n; i++) {
+            boolean dupe = i > 0 && copy[i].compareTo(copy[i-1]) == 0;
+            if (dupe || copy[i] == null) {
+                throw new IllegalArgumentException();
+            }
+        }
+
         for (int i = 0; i < n; i++) {
             for (int j = i + 1; j < n; j++) {
                 for (int k = j + 1; k < n; k++) {
                     for (int l = k + 1; l < n; l++) {
-                        Point p = points[i];
-                        Point q = points[j];
-                        Point r = points[k];
-                        Point s = points[l];
+                        Point p = copy[i];
+                        Point q = copy[j];
+                        Point r = copy[k];
+                        Point s = copy[l];
                         
                         double pq = p.slopeTo(q);
                         double pr = p.slopeTo(r);
                         double ps = p.slopeTo(s);
-                        if (pq == pr && pr == ps) {
+                        if (Double.compare(pq, pr) == 0 && Double.compare(pr, ps) == 0) {
                             if (segIdx == segments.length) {
                                 resize(2 * segments.length);
                             }

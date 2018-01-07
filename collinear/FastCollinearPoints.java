@@ -13,26 +13,36 @@ public class FastCollinearPoints {
             throw new IllegalArgumentException();
         }
         
-        Point[] ordered = new Point[points.length];
-        for (int i = 0; i < points.length; i++) {
-            ordered[i] = points[i];
-        }
-        Arrays.sort(ordered);
-        
+        // copy array
         int n = points.length;
+        Point[] copy = new Point[n];
+        for (int i = 0; i < n; i++) {
+            copy[i] = points[i];
+        }
+        
+        // sort array and check for duplicates and nulls
+        Arrays.sort(copy);
+        for (int i = 0; i < n; i++) {
+            boolean dupe = i > 0 && copy[i].compareTo(copy[i-1]) == 0;
+            if (dupe || copy[i] == null) {
+                throw new IllegalArgumentException();
+            }
+        }
+        
         for (int i = 0; i < n; i++) {
             // copy array ordered by point value
+            Point[] bySlope = new Point[n];
             for (int j = 0; j < n; j++) {
-                points[j] = ordered[j];
+                bySlope[j] = copy[j];
             }
             
-            Point x = points[i];
+            Point x = copy[i];
             
             // order copied array by slope in comparison to i
-            Arrays.sort(points, x.slopeOrder());
+            Arrays.sort(bySlope, x.slopeOrder());
             int count = 0;
             for (int j = 0; j < n-1; j++) {
-                if (x.compareTo(points[j]) == -1 && x.slopeTo(points[j]) == x.slopeTo(points[j+1])) {
+                if (x.compareTo(bySlope[j]) < 0 && Double.compare(x.slopeTo(bySlope[j]), x.slopeTo(bySlope[j+1])) == 0) {
                     count++;
                 }
                 else {
@@ -40,7 +50,7 @@ public class FastCollinearPoints {
                         if (segIdx == segments.length) {
                             resize(segments.length * 2);
                         }
-                        segments[segIdx++] = new LineSegment(x, points[j]);
+                        segments[segIdx++] = new LineSegment(x, bySlope[j]);
                     }
                     count = 0;
                 }
