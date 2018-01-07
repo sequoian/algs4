@@ -42,15 +42,19 @@ public class FastCollinearPoints {
             Arrays.sort(bySlope, x.slopeOrder());
             int count = 0;
             for (int j = 0; j < n-1; j++) {
-                if (x.compareTo(bySlope[j]) < 0 && Double.compare(x.slopeTo(bySlope[j]), x.slopeTo(bySlope[j+1])) == 0) {
+                //System.out.format("%f, %f\n", x.slopeTo(bySlope[j]), x.slopeTo(bySlope[j+1]));
+                
+                boolean slopeMatched = x.compareTo(bySlope[j]) < 0 && Double.compare(x.slopeTo(bySlope[j]), x.slopeTo(bySlope[j+1])) == 0;
+                if (slopeMatched) {
                     count++;
                 }
-                else {
+                
+                if (!slopeMatched || (slopeMatched && j == n-2)) {
                     if (count >= 2) {
                         if (segIdx == segments.length) {
                             resize(segments.length * 2);
                         }
-                        segments[segIdx++] = new LineSegment(x, bySlope[j]);
+                        segments[segIdx++] = new LineSegment(x, bySlope[j+1]);
                     }
                     count = 0;
                 }
