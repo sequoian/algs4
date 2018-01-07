@@ -13,18 +13,21 @@ public class FastCollinearPoints {
             throw new IllegalArgumentException();
         }
         
-        // copy array
+        // copy array and check for null
         int n = points.length;
         Point[] copy = new Point[n];
         for (int i = 0; i < n; i++) {
-            copy[i] = points[i];
+            if (points[i] != null)
+                copy[i] = points[i];
+            else
+                throw new IllegalArgumentException();
         }
         
-        // sort array and check for duplicates and nulls
+        // sort array and check for duplicates
         Arrays.sort(copy);
         for (int i = 0; i < n; i++) {
             boolean dupe = i > 0 && copy[i].compareTo(copy[i-1]) == 0;
-            if (dupe || copy[i] == null) {
+            if (dupe) {
                 throw new IllegalArgumentException();
             }
         }
@@ -36,29 +39,46 @@ public class FastCollinearPoints {
                 bySlope[j] = copy[j];
             }
             
+            // point to compare rest of points by
             Point x = copy[i];
             
-            // order copied array by slope in comparison to i
+            // order copied array by slope in comparison to x
             Arrays.sort(bySlope, x.slopeOrder());
+            
+            // line segment variables
             int count = 0;
+            Point min = null;
+            Point max = null;
+            
+            // check every slope in relation to x
             for (int j = 0; j < n-1; j++) {
-                
-                
-                boolean slopeMatched = x.compareTo(bySlope[j]) < 0 && Double.compare(x.slopeTo(bySlope[j]), x.slopeTo(bySlope[j+1])) == 0;
+                boolean slopeMatched = Double.compare(x.slopeTo(bySlope[j]), x.slopeTo(bySlope[j+1])) == 0;
                 if (slopeMatched) {
+                    // we know the first matched point will be the smallest because of sort stability
+                    if (count == 0)
+                        min = bySlope[j];
+                    // we know j+1 will be the largest matched point due to sort stability
+                    max = bySlope[j+1];
+                    // increment point counter
                     count++;
                 }
                 
-                if (!slopeMatched || (slopeMatched && j == n-2)) {
+                // check to see if a line segement should be created
+                boolean endOfArray = slopeMatched && j == n - 2;
+                if (!slopeMatched || endOfArray) {
+                    // 2 matches mean 4 collinear points
                     if (count >= 2) {
-                        if (segIdx == segments.length) {
-                            resize(segments.length * 2);
+                        // check that x is the smallest point.  this is the criteria we will
+                        // use to create the segment in order to avoid creating sub-segments
+                        if (x.compareTo(min) < 0) {
+                            // resize array if needed
+                            if (segIdx == segments.length)
+                                resize(segments.length * 2);
+                            // create line segment and increment idx
+                            segments[segIdx++] = new LineSegment(x, max);
                         }
-                        if (slopeMatched)
-                            segments[segIdx++] = new LineSegment(x, bySlope[j+1]);
-                        else
-                            segments[segIdx++] = new LineSegment(x, bySlope[j]);
                     }
+                    // reset counter
                     count = 0;
                 }
             }

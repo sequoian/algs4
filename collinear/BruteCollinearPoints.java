@@ -13,18 +13,21 @@ public class BruteCollinearPoints {
             throw new IllegalArgumentException();
         }
         
-        // copy array
+        // copy array and check for null
         int n = points.length;
         Point[] copy = new Point[n];
         for (int i = 0; i < n; i++) {
-            copy[i] = points[i];
+            if (points[i] != null)
+                copy[i] = points[i];
+            else
+                throw new IllegalArgumentException();
         }
         
-        // sort array and check for duplicates and nulls
+        // sort array and check for duplicates
         Arrays.sort(copy);
         for (int i = 0; i < n; i++) {
             boolean dupe = i > 0 && copy[i].compareTo(copy[i-1]) == 0;
-            if (dupe || copy[i] == null) {
+            if (dupe) {
                 throw new IllegalArgumentException();
             }
         }
