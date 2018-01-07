@@ -157,8 +157,8 @@ public class Point implements Comparable<Point> {
         // vert > posi > hori > nega > same
         Point posi = steep;
         Point nega = new Point(1, -2);
-        assert c.compare(vert, steep) == 1;
-        assert c.compare(steep, hori) == 1;
+        assert c.compare(vert, posi) == 1;
+        assert c.compare(posi, hori) == 1;
         assert c.compare(hori, nega) == 1;
         assert c.compare(nega, same) == 1;
         // changes based on point
