@@ -1,3 +1,6 @@
+import java.util.Arrays;
+import java.util.Stack;
+
 public class Board {
     
     private int[] tiles;
@@ -85,15 +88,75 @@ public class Board {
     }
     
     public boolean equals(Object y) {
-        
+        if (y == this) return true;
+        if (y == null) return false;
+        if (y.getClass() != this.getClass()) return false;
+        Board that = (Board) y;
+        return (Arrays.equals(this.tiles, that.tiles)) && (this.dim == that.dim);
     }
     
     public Iterable<Board> neighbors() {
+        // find empty tile
+        int empty = 0;
+        for (int i = 0; i < tiles.length; i++) {
+            if (tiles[i] == 0) {
+                empty = i;
+                break;
+            }
+        }
         
+        // calculate neighbor indices
+        Stack<Integer> indices = new Stack<Integer>();
+        // top
+        int idx = empty - dim;
+        if (idx > -1) indices.push(idx);
+        // bot
+        idx = empty + dim;
+        if (idx < dim*dim) indices.push(idx);
+        // left
+        idx = empty - 1;
+        if (idx > -1 && idx%dim != dim-1) indices.push(idx);
+        // right
+        idx = empty + 1;
+        if (idx < dim*dim && idx%dim != 0) indices.push(idx);
+        
+        // create neighbor boards
+        Stack<Board> neighbors = new Stack<Board>();
+        for (int i : indices) {
+            // clone tiles
+            int n = tiles.length;
+            int[] clone = new int[n];
+            for (int j = 0; j < n; j++) {
+                clone[j] = tiles[j];
+            }
+            // swap tiles
+            clone[empty] = clone[i];
+            clone[i] = 0;
+            // switch to 2d array (optimally do this ahead and calculate based on 2d array)
+            // TODO: private int[][] 1dTo2d()
+            int[][] clone2 = new int[dim][dim];
+            for (int k = 0; k < dim; k++) {
+                for (int l = 0; l < dim; l++) {
+                    clone2[k][l] = clone[k*dim + l];
+                }
+            }
+            
+            neighbors.push(new Board(clone2));
+        }
+
+        return neighbors;
     }
     
     public String toString() {
-        
+        StringBuilder s = new StringBuilder();
+        s.append(dim + "\n");
+        for (int i = 0; i < dim; i++) {
+            for (int j = 0; j < dim; j++) {
+                s.append(String.format("%d ", tiles[i*dim + j]));
+            }
+            s.append("\n");
+        }
+        return s.toString();
     }
     
     public static void main(String[] args) {
