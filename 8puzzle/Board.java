@@ -1,5 +1,7 @@
 import java.util.Arrays;
 import java.util.Stack;
+import edu.princeton.cs.algs4.In;
+import edu.princeton.cs.algs4.StdOut;
 
 public class Board {
     
@@ -7,11 +9,13 @@ public class Board {
     private int dim;
     
     public Board(int[][] blocks) {
-        int dim = blocks.length;
+        dim = blocks.length;
         tiles = new int[dim*dim];
+        int x = 0;
         for (int i = 0; i < dim; i++) {
             for (int j = 0; j < dim; j++) {
-                tiles[i] = blocks[i][j];
+                tiles[x] = blocks[i][j];
+                x++;
             }
         }
     }
@@ -160,6 +164,23 @@ public class Board {
     }
     
     public static void main(String[] args) {
+        In in = new In(args[0]);
+        int n = in.readInt();
+        int[][] blocks = new int[n][n];
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                blocks[i][j] = in.readInt();
+            }
+        }
+        Board b = new Board(blocks);
         
+        StdOut.println("BOARD");
+        StdOut.println(b);
+        StdOut.println("NEIGHBORS");
+        for (Board s : b.neighbors()) {
+            StdOut.println(s);
+        }
+        StdOut.println("TWIN");
+        StdOut.println(b.twin());
     }
 }
