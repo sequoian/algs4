@@ -12,6 +12,9 @@ public class Solver {
     private boolean solvable = false;
     
     public Solver(Board initial) {
+        if (initial == null) {
+            throw new IllegalArgumentException();
+        }
         // create priority queue and twin
         pq.insert(new Node(initial, null, 0));
         twin.insert(new Node(initial.twin(), null, 0));
@@ -40,6 +43,7 @@ public class Solver {
             b = min.board();
             if (b.isGoal()) {
                 solvable = false;
+                solution = null;
                 break;
             }
             for (Board n : b.neighbors()) {
@@ -110,17 +114,26 @@ public class Solver {
     }
     
     public int moves() {
-        return solution.moves();
+        if (solvable)
+            return solution.moves();
+        else
+            return -1;
     }
     
     public Iterable<Board> solution() {
-        Stack s = new Stack<Board>();
-        Node n = solution;
-        while(n != null) {
-            s.push(n.board());
-            n = n.predecessor();
+        if (solvable) {
+            Stack s = new Stack<Board>();
+            Node n = solution;
+            while(n != null) {
+                s.push(n.board());
+                n = n.predecessor();
+            }
+            return s;
         }
-        return s;
+        else {
+            return null;
+        }
+        
     }
     
     public static void main(String[] args) {
