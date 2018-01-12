@@ -41,9 +41,11 @@ public class Board {
         for (int i = 0; i < tiles.length; i++) {
             int tile = tiles[i];
             if (tile != 0 && tile != i+1) {
-                int offset = Math.abs((i+1) - tile);
-                int moves = (offset / dim) + (offset % dim);
-                priority += moves;
+                int target = tile - 1;
+                int offY = target/dim - i/dim;
+                int offX = target%dim - i%dim;
+                //System.out.format("%d: %d + %d = %d\n", tile, Math.abs(offY), Math.abs(offX), Math.abs(offY) + Math.abs(offX));
+                priority += Math.abs(offY) + Math.abs(offX);
             }
         }
         return priority;
@@ -182,5 +184,7 @@ public class Board {
         }
         StdOut.println("TWIN");
         StdOut.println(b.twin());
+        StdOut.println("MANHATTAN");
+        StdOut.println(b.manhattan());
     }
 }
