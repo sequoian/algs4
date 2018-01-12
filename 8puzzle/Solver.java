@@ -1,6 +1,6 @@
 import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.StdOut;
-import edu.princeton.cs.algs4.Queue;
+import edu.princeton.cs.algs4.Stack;
 import edu.princeton.cs.algs4.MinPQ;
 import java.util.Comparator;
 
@@ -8,8 +8,7 @@ public class Solver {
     
     private MinPQ<Node> pq = new MinPQ<Node>(nodeOrder());
     private MinPQ<Node> twin = new MinPQ<Node>(nodeOrder());
-    private Queue<Board> solution = new Queue<Board>();
-    private int moves = 0;
+    private Node solution = null;
     private boolean solvable = false;
     
     public Solver(Board initial) {
@@ -19,19 +18,20 @@ public class Solver {
         
         // look for solution            
         while(true) {
+            
             // test main board
             Node min = pq.delMin();
             Board b = min.board();
-            solution.enqueue(b);
+            solution = min;
+            
             if (b.isGoal()) {
                 solvable = true;
                 break;
             }
             
-            moves++;
             for (Board n : b.neighbors()) {
-                if (!n.equals(min.predecessor())) {
-                    pq.insert(new Node(n, b, moves));
+                if (min.predecessor == null || !n.equals(min.predecessor().board())) {
+                    pq.insert(new Node(n, min, min.moves() + 1));
                 }
             }
             
@@ -43,8 +43,8 @@ public class Solver {
                 break;
             }
             for (Board n : b.neighbors()) {
-                if (!n.equals(min.predecessor())) {
-                    twin.insert(new Node(n, b, moves));
+                if (min.predecessor == null || !n.equals(min.predecessor().board())) {
+                    twin.insert(new Node(n, min, min.moves() + 1));
                 }
             }
         }
@@ -53,24 +53,34 @@ public class Solver {
     private class Node {
         
         private Board board;
-        private Board predecessor;
-        private int priority;
+        private Node predecessor;
+        private int manhattan;
+        private int moves;
         
-        public Node(Board b, Board p, int m) {
+        public Node(Board b, Node p, int m) {
             board = b;
             predecessor = p;
-            priority = m + b.manhattan();
+            moves = m;
+            manhattan = b.manhattan();
         }
         
         public int priority() {
-            return priority;
+            return manhattan + moves;
+        }
+        
+        public int manhattan() {
+            return manhattan;
+        }
+        
+        public int moves() {
+            return moves;
         }
         
         public Board board() {
             return board;
         }
         
-        public Board predecessor() {
+        public Node predecessor() {
             return predecessor;
         }
     }
@@ -85,7 +95,13 @@ public class Solver {
             int p2 = n2.priority();
             if (p1 < p2) return -1;
             else if (p1 > p2) return 1;
-            else return 0;
+            else {
+                int m1 = n1.manhattan();
+                int m2 = n2.manhattan();
+                if (m1 < m2) return -1;
+                else if (m1 > m2) return 1;
+                else return 0;
+            }
         }
     }
     
@@ -94,11 +110,17 @@ public class Solver {
     }
     
     public int moves() {
-        return moves;
+        return solution.moves();
     }
     
     public Iterable<Board> solution() {
-        return solution;
+        Stack s = new Stack<Board>();
+        Node n = solution;
+        while(n != null) {
+            s.push(n.board());
+            n = n.predecessor();
+        }
+        return s;
     }
     
     public static void main(String[] args) {
