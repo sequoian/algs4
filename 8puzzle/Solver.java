@@ -5,9 +5,6 @@ import edu.princeton.cs.algs4.MinPQ;
 import java.util.Comparator;
 
 public class Solver {
-    
-    private MinPQ<Node> pq = new MinPQ<Node>(nodeOrder());
-    private MinPQ<Node> twin = new MinPQ<Node>(nodeOrder());
     private Node solution = null;
     private boolean solvable = false;
     
@@ -15,7 +12,12 @@ public class Solver {
         if (initial == null) {
             throw new IllegalArgumentException();
         }
-        // create priority queue and twin
+        
+        // declare priority queues
+        MinPQ<Node> pq = new MinPQ<Node>(nodeOrder());
+        MinPQ<Node> twin = new MinPQ<Node>(nodeOrder());
+        
+        // start priority queue and twin
         pq.insert(new Node(initial, null, 0));
         twin.insert(new Node(initial.twin(), null, 0));
         
@@ -122,7 +124,7 @@ public class Solver {
     
     public Iterable<Board> solution() {
         if (solvable) {
-            Stack s = new Stack<Board>();
+            Stack<Board> s = new Stack<Board>();
             Node n = solution;
             while(n != null) {
                 s.push(n.board());
