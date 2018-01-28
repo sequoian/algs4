@@ -35,32 +35,41 @@ public class KdTree {
     
     public void insert(Point2D p) {
         if (p == null) throw new IllegalArgumentException();
-        root = put(root, p, true);
+        root = put(root, p, true, new RectHV(0, 0, 1, 1));
     }
     
-    private Node put(Node n, Point2D p, boolean vert) {
+    private Node put(Node n, Point2D p, boolean vert, RectHV r) {
         if (n == null) {
             size++;
-            return new Node(p, null);
+            return new Node(p, r);
         }
         
         // check if the node is dividing space with vertical line
         int cmp;
+        RectHV rect;
         if (vert) {
             // compare x coord
             cmp = Double.compare(n.point.x(), p.x());
+            if (cmp < 0) {
+                rect = new RectHV(r.xmin(), r.ymin(), n.point.x(), r.ymax());
+                n.lb = put(n.lb, p, !vert, rect);
+            }
+            else {
+                rect = new RectHV(n.point.x(), r.ymin(), r.xmax(), r.ymax());
+                n.rt = put(n.rt, p, !vert, rect);
+            }
         }
         else {
             // compare y coord
             cmp = Double.compare(n.point.y(), p.y());
-        }
-        
-        // put in lb if smaller, and rt if greater or equal
-        if (cmp < 0) {
-            n.lb = put(n.lb, p, !vert);
-        }
-        else {
-            n.rt = put(n.rt, p, !vert);
+            if (cmp < 0) {
+                rect = new RectHV(r.xmin(), n.point.y(), r.xmax(), r.ymax());
+                n.lb = put(n.lb, p, !vert, rect);
+            }
+            else {
+                rect = new RectHV(r.xmin(), r.ymin(), r.xmax(), n.point.y());
+                n.rt = put(n.rt, p, !vert, rect);
+            }
         }
         
         return n;
@@ -88,9 +97,33 @@ public class KdTree {
             return get(n.rt, p, !vert);
     }
     
-    //public void draw() {
-
-    //}
+    public void draw() {
+        draw(root, true);
+    }
+    
+    private void draw(Node n, boolean vert) {
+        if (n == null) return;
+        
+        // draw point
+        Point2D p = n.point;
+        StdDraw.setPenColor(StdDraw.BLACK);
+        StdDraw.setPenRadius(0.01);
+        StdDraw.point(p.x(), p.y());
+        
+        // draw line
+        StdDraw.setPenRadius();
+        if (vert) {
+            StdDraw.setPenColor(StdDraw.RED);
+            StdDraw.line(p.x(), n.rect.ymin(), p.x(), n.rect.ymax());
+        }
+        else {
+            StdDraw.setPenColor(StdDraw.BLUE);
+            StdDraw.line(n.rect.xmin(), p.y(), n.rect.xmax(), p.y());
+        }
+        
+        draw(n.lb, !vert);
+        draw(n.rt, !vert);
+    }
     
     //public Iterable<Point2D> range(RectHV rect) {
 
