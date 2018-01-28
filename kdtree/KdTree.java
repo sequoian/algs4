@@ -142,9 +142,31 @@ public class KdTree {
         range(n.rt, rect, q);
     }
     
-    //public Point2D nearest(Point2D p) {
+    public Point2D nearest(Point2D p) {
+        if (p == null) throw new IllegalArgumentException();
+        if (root == null) return null;
+        return nearest(root, p, root.point);
+    }
 
-    //}
+    private Point2D nearest(Node n, Point2D p, Point2D closest) {
+        if (n == null) return closest;
+        
+        // prune nodes and children that cannot be closer
+        if (closest.distanceSquaredTo(p) < n.rect.distanceSquaredTo(p))
+            return closest;  
+        
+        // compare this node with closest
+        if (n.point.distanceSquaredTo(p) < closest.distanceSquaredTo(p))
+            closest = n.point;
+        
+        Point2D lb = nearest(n.lb, p, closest);
+        Point2D rt = nearest(n.rt, p, closest);
+        
+        if (lb.distanceSquaredTo(p) < rt.distanceSquaredTo(p))
+            return lb;
+        else
+            return rt;
+    }
     
     public static void main(String[] args) {
         KdTree tree = new KdTree();
