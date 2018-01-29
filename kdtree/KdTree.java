@@ -36,50 +36,43 @@ public class KdTree {
     
     public void insert(Point2D p) {
         if (p == null) throw new IllegalArgumentException();
-        root = put(root, p, true, new RectHV(0, 0, 1, 1));
+        root = put(root, p, true, 0, 0, 1, 1);
     }
     
-    private Node put(Node n, Point2D p, boolean vert, RectHV r) {
+    private Node put(Node n, Point2D p, boolean vert, double xmin, double ymin, double xmax, double ymax) {
         if (n == null) {
             size++;
-            return new Node(p, r);
+            return new Node(p, new RectHV(xmin, ymin, xmax, ymax));
         }
         
         // check if the node is dividing space with vertical line
         int cmp;
-        RectHV rect;
         if (vert) {
             // compare x coord
             cmp = Double.compare(p.x(), n.point.x());
             if (cmp < 0) {
-                rect = new RectHV(r.xmin(), r.ymin(), n.point.x(), r.ymax());
-                n.lb = put(n.lb, p, !vert, rect);
+                n.lb = put(n.lb, p, !vert, xmin, ymin, n.point.x(), ymax);
             }
             else if (cmp > 0) {
-                rect = new RectHV(n.point.x(), r.ymin(), r.xmax(), r.ymax());
-                n.rt = put(n.rt, p, !vert, rect);
+                n.rt = put(n.rt, p, !vert, n.point.x(), ymin, xmax, ymax);
             }
             else if (Double.compare(n.point.y(), p.y()) != 0) {
                 // if they are not the same points
-                rect = new RectHV(n.point.x(), r.ymin(), r.xmax(), r.ymax());
-                n.rt = put(n.rt, p, !vert, rect);
+                n.rt = put(n.rt, p, !vert, n.point.x(), ymin, xmax, ymax);
             }
         }
         else {
             // compare y coord
             cmp = Double.compare(p.y(), n.point.y());
             if (cmp < 0) {
-                rect = new RectHV(r.xmin(), r.ymin(), r.xmax(), n.point.y());
-                n.lb = put(n.lb, p, !vert, rect);
+                n.lb = put(n.lb, p, !vert, xmin, ymin, xmax, n.point.y());
             }
             else if (cmp > 0) {
-                rect = new RectHV(r.xmin(), n.point.y(), r.xmax(), r.ymax());
-                n.rt = put(n.rt, p, !vert, rect);
+                n.rt = put(n.rt, p, !vert, xmin, n.point.y(), xmax, ymax);
             }
             else if (Double.compare(n.point.x(), p.x()) != 0) {
                 // if they are not the same points
-                rect = new RectHV(r.xmin(), n.point.y(), r.xmax(), r.ymax());
-                n.rt = put(n.rt, p, !vert, rect);
+                n.rt = put(n.rt, p, !vert, xmin, n.point.y(), xmax, ymax);
             }
         }
         
@@ -184,12 +177,12 @@ public class KdTree {
         }
         else {
             if (p.y() < n.point.y()) {
-                first = n.rt;
-                second = n.lb;
-            }
-            else {
                 first = n.lb;
                 second = n.rt;
+            }
+            else {
+                first = n.rt;
+                second = n.lb;
             }
         }
         
