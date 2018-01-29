@@ -98,9 +98,9 @@ public class KdTree {
         // compare points based on x or y coords
         int cmp;
         if (vert)
-            cmp = Double.compare(n.point.x(), p.x());
+            cmp = Double.compare(p.x(), n.point.x());
         else
-            cmp = Double.compare(n.point.y(), p.y());
+            cmp = Double.compare(p.y(), n.point.y());
         
         if (cmp < 0)
             return get(n.lb, p, !vert);
@@ -137,6 +137,7 @@ public class KdTree {
     }
     
     public Iterable<Point2D> range(RectHV rect) {
+        if (rect == null) throw new IllegalArgumentException();
         Queue<Point2D> q = new Queue<Point2D>();
         range(root, rect, q);
         return q;
@@ -204,6 +205,9 @@ public class KdTree {
         assert tree.isEmpty() == true;
         Point2D p1 = new Point2D(0.2, 0.3);
         Point2D p2 = new Point2D(0.8, 0.5);
+        Point2D p3 = new Point2D(0.1, 0.2);
+        Point2D p4 = new Point2D(0.2, 0.4);
+        Point2D p5 = new Point2D(0.9, 0.7);
         tree.insert(p1);
         assert tree.isEmpty() == false;
         assert tree.size == 1;
@@ -214,21 +218,27 @@ public class KdTree {
         assert tree.contains(p2) == true;
         tree.insert(p2);
         assert tree.size == 2;
+        tree.insert(p3);
+        tree.insert(p4);
+        tree.insert(p5);
+        assert tree.contains(p3) == true;
+        assert tree.contains(p4) == true;
+        assert tree.contains(p5) == true;
         
         // test nearest
         Point2D nearest = new Point2D(0.9, 0.8);
-        assert tree.nearest(nearest).equals(p2);
+        assert tree.nearest(nearest).equals(p5);
         
         // test range
         System.out.println("Range");
         RectHV range = new RectHV(0, 0, 1, 1);
         for (Point2D p : tree.range(range)) {
-            System.out.println(p.toString());
+            System.out.println(p);
         }
         System.out.println("----");
         range = new RectHV(0, 0, 0.5, 0.5);
         for (Point2D p : tree.range(range)) {
-            System.out.println(p.toString());
+            System.out.println(p);
         }
     }
 }
