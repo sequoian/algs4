@@ -145,10 +145,10 @@ public class KdTree {
     public Point2D nearest(Point2D p) {
         if (p == null) throw new IllegalArgumentException();
         if (root == null) return null;
-        return nearest(root, p, root.point);
+        return nearest(root, p, root.point, true);
     }
 
-    private Point2D nearest(Node n, Point2D p, Point2D closest) {
+    private Point2D nearest(Node n, Point2D p, Point2D closest, boolean vert) {
         if (n == null) return closest;
         
         // prune nodes and children that cannot be closer
@@ -159,13 +159,33 @@ public class KdTree {
         if (n.point.distanceSquaredTo(p) < closest.distanceSquaredTo(p))
             closest = n.point;
         
-        Point2D lb = nearest(n.lb, p, closest);
-        Point2D rt = nearest(n.rt, p, closest);
+        // go down the containing partition first
+        Node first, second;
+        if (vert) {
+            if (p.x() < n.point.x()) {
+                first = n.lb;
+                second = n.rt;
+            }
+            else {
+                first = n.rt;
+                second = n.lb;
+            }
+        }
+        else {
+            if (p.y() < n.point.y()) {
+                first = n.rt;
+                second = n.lb;
+            }
+            else {
+                first = n.lb;
+                second = n.rt;
+            }
+        }
         
-        if (lb.distanceSquaredTo(p) < rt.distanceSquaredTo(p))
-            return lb;
-        else
-            return rt;
+        closest = nearest(first, p, closest, !vert);
+        closest = nearest(second, p, closest, !vert);
+        
+        return closest;
     }
     
     public static void main(String[] args) {
@@ -182,5 +202,21 @@ public class KdTree {
         tree.insert(p2);
         assert tree.size == 2;
         assert tree.contains(p2) == true;
+        
+        // test nearest
+        Point2D nearest = new Point2D(0.9, 0.8);
+        assert tree.nearest(nearest).equals(p2);
+        
+        // test range
+        System.out.println("Range");
+        RectHV range = new RectHV(0, 0, 1, 1);
+        for (Point2D p : tree.range(range)) {
+            System.out.println(p.toString());
+        }
+        System.out.println("----");
+        range = new RectHV(0, 0, 0.5, 0.5);
+        for (Point2D p : tree.range(range)) {
+            System.out.println(p.toString());
+        }
     }
 }
