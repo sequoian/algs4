@@ -50,7 +50,7 @@ public class KdTree {
         RectHV rect;
         if (vert) {
             // compare x coord
-            cmp = Double.compare(n.point.x(), p.x());
+            cmp = Double.compare(p.x(), n.point.x());
             if (cmp < 0) {
                 rect = new RectHV(r.xmin(), r.ymin(), n.point.x(), r.ymax());
                 n.lb = put(n.lb, p, !vert, rect);
@@ -67,18 +67,18 @@ public class KdTree {
         }
         else {
             // compare y coord
-            cmp = Double.compare(n.point.y(), p.y());
+            cmp = Double.compare(p.y(), n.point.y());
             if (cmp < 0) {
-                rect = new RectHV(r.xmin(), n.point.y(), r.xmax(), r.ymax());
+                rect = new RectHV(r.xmin(), r.ymin(), r.xmax(), n.point.y());
                 n.lb = put(n.lb, p, !vert, rect);
             }
             else if (cmp > 0) {
-                rect = new RectHV(r.xmin(), r.ymin(), r.xmax(), n.point.y());
+                rect = new RectHV(r.xmin(), n.point.y(), r.xmax(), r.ymax());
                 n.rt = put(n.rt, p, !vert, rect);
             }
             else if (Double.compare(n.point.x(), p.x()) != 0) {
                 // if they are not the same points
-                rect = new RectHV(r.xmin(), r.ymin(), r.xmax(), n.point.y());
+                rect = new RectHV(r.xmin(), n.point.y(), r.xmax(), r.ymax());
                 n.rt = put(n.rt, p, !vert, rect);
             }
         }
