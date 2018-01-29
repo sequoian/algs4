@@ -55,7 +55,12 @@ public class KdTree {
                 rect = new RectHV(r.xmin(), r.ymin(), n.point.x(), r.ymax());
                 n.lb = put(n.lb, p, !vert, rect);
             }
-            else {
+            else if (cmp > 0) {
+                rect = new RectHV(n.point.x(), r.ymin(), r.xmax(), r.ymax());
+                n.rt = put(n.rt, p, !vert, rect);
+            }
+            else if (Double.compare(n.point.y(), p.y()) != 0) {
+                // if they are not the same points
                 rect = new RectHV(n.point.x(), r.ymin(), r.xmax(), r.ymax());
                 n.rt = put(n.rt, p, !vert, rect);
             }
@@ -67,7 +72,12 @@ public class KdTree {
                 rect = new RectHV(r.xmin(), n.point.y(), r.xmax(), r.ymax());
                 n.lb = put(n.lb, p, !vert, rect);
             }
-            else {
+            else if (cmp > 0) {
+                rect = new RectHV(r.xmin(), r.ymin(), r.xmax(), n.point.y());
+                n.rt = put(n.rt, p, !vert, rect);
+            }
+            else if (Double.compare(n.point.x(), p.x()) != 0) {
+                // if they are not the same points
                 rect = new RectHV(r.xmin(), r.ymin(), r.xmax(), n.point.y());
                 n.rt = put(n.rt, p, !vert, rect);
             }
@@ -202,6 +212,8 @@ public class KdTree {
         tree.insert(p2);
         assert tree.size == 2;
         assert tree.contains(p2) == true;
+        tree.insert(p2);
+        assert tree.size == 2;
         
         // test nearest
         Point2D nearest = new Point2D(0.9, 0.8);
